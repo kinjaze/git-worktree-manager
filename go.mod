@@ -1,4 +1,4 @@
-module github.com/qinbin/git-worktree-manager
+module github.com/kinjaze/git-worktree-manager
 
 go 1.24.2
 

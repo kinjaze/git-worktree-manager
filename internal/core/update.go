@@ -3,7 +3,7 @@ package core
 import (
 	"context"
 
-	"github.com/qinbin/git-worktree-manager/internal/jsonapi"
+	"github.com/kinjaze/git-worktree-manager/internal/jsonapi"
 )
 
 type UpdateResult struct {

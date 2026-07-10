@@ -1,4 +1,4 @@
-gwt
-dist/
+/gwt
+/dist/
 *.test
 .DS_Store

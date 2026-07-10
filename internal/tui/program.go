@@ -4,8 +4,8 @@ import (
 	"context"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/qinbin/git-worktree-manager/internal/core"
-	"github.com/qinbin/git-worktree-manager/internal/i18n"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
+	"github.com/kinjaze/git-worktree-manager/internal/i18n"
 )
 
 func Run(ctx context.Context, manager core.Manager, tr i18n.Translator, configPath string, initialRepo string) error {

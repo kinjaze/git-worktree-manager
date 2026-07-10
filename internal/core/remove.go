@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/qinbin/git-worktree-manager/internal/jsonapi"
+	"github.com/kinjaze/git-worktree-manager/internal/jsonapi"
 )
 
 type RemoveOptions struct {

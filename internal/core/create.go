@@ -3,9 +3,9 @@ package core
 import (
 	"context"
 
-	gitpkg "github.com/qinbin/git-worktree-manager/internal/git"
-	"github.com/qinbin/git-worktree-manager/internal/jsonapi"
-	"github.com/qinbin/git-worktree-manager/internal/metadata"
+	gitpkg "github.com/kinjaze/git-worktree-manager/internal/git"
+	"github.com/kinjaze/git-worktree-manager/internal/jsonapi"
+	"github.com/kinjaze/git-worktree-manager/internal/metadata"
 )
 
 type CreateOptions struct {

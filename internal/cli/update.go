@@ -3,8 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/qinbin/git-worktree-manager/internal/core"
-	"github.com/qinbin/git-worktree-manager/internal/jsonapi"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
+	"github.com/kinjaze/git-worktree-manager/internal/jsonapi"
 	"github.com/spf13/cobra"
 )
 

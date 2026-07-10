@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/qinbin/git-worktree-manager/internal/core"
-	uitool "github.com/qinbin/git-worktree-manager/internal/tui"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
+	uitool "github.com/kinjaze/git-worktree-manager/internal/tui"
 	"github.com/spf13/cobra"
 )
 

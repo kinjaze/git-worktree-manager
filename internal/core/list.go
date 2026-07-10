@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/qinbin/git-worktree-manager/internal/metadata"
+	"github.com/kinjaze/git-worktree-manager/internal/metadata"
 )
 
 type ListResult struct {

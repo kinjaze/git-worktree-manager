@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/qinbin/git-worktree-manager/internal/core"
-	"github.com/qinbin/git-worktree-manager/internal/i18n"
-	"github.com/qinbin/git-worktree-manager/internal/jsonapi"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
+	"github.com/kinjaze/git-worktree-manager/internal/i18n"
+	"github.com/kinjaze/git-worktree-manager/internal/jsonapi"
 )
 
 func printJSON(response jsonapi.Response) error {

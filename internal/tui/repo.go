@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/qinbin/git-worktree-manager/internal/core"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
 )
 
 func defaultSourceRepo(ctx context.Context, manager core.Manager, explicitRepo string) string {

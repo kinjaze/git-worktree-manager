@@ -7,7 +7,7 @@
 ### From source
 
 ```bash
-go install github.com/qinbin/git-worktree-manager/cmd/gwt@latest
+go install github.com/kinjaze/git-worktree-manager/cmd/gwt@latest
 ```
 
 ### From a release archive

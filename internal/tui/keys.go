@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/qinbin/git-worktree-manager/internal/config"
-	"github.com/qinbin/git-worktree-manager/internal/core"
-	gitpkg "github.com/qinbin/git-worktree-manager/internal/git"
-	"github.com/qinbin/git-worktree-manager/internal/i18n"
+	"github.com/kinjaze/git-worktree-manager/internal/config"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
+	gitpkg "github.com/kinjaze/git-worktree-manager/internal/git"
+	"github.com/kinjaze/git-worktree-manager/internal/i18n"
 )
 
 type operationProgressMsg struct {

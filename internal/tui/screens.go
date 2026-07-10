@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/qinbin/git-worktree-manager/internal/core"
-	"github.com/qinbin/git-worktree-manager/internal/i18n"
-	"github.com/qinbin/git-worktree-manager/internal/metadata"
+	"github.com/kinjaze/git-worktree-manager/internal/core"
+	"github.com/kinjaze/git-worktree-manager/internal/i18n"
+	"github.com/kinjaze/git-worktree-manager/internal/metadata"
 )
 
 type screen int
