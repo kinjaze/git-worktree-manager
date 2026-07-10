@@ -2,6 +2,8 @@
 
 `gwt` is a Git worktree lifecycle manager with a human-friendly TUI and agent-friendly CLI/JSON output.
 
+[中文文档](README.zh-CN.md)
+
 ## Install
 
 ### From source
