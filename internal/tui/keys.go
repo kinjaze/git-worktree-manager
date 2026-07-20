@@ -13,6 +13,7 @@ import (
 	"github.com/kinjaze/git-worktree-manager/internal/core"
 	gitpkg "github.com/kinjaze/git-worktree-manager/internal/git"
 	"github.com/kinjaze/git-worktree-manager/internal/i18n"
+	"github.com/kinjaze/git-worktree-manager/internal/jsonapi"
 )
 
 type operationProgressMsg struct {
@@ -46,7 +47,7 @@ func waitProgress(progressChan chan operationProgressMsg) tea.Cmd {
 	}
 }
 
-func (m *model) startOperation(message string, total int) chan operationProgressMsg {
+func (m *model) startOperation(message string, total int) (chan operationProgressMsg, tea.Cmd) {
 	m.err = ""
 	m.message = ""
 	m.conflict = nil
@@ -56,7 +57,7 @@ func (m *model) startOperation(message string, total int) chan operationProgress
 	m.progressLabels = make([]string, total)
 	m.progressChan = make(chan operationProgressMsg, total)
 	m.screen = screenLoading
-	return m.progressChan
+	return m.progressChan, m.spinner.Tick
 }
 
 func (m model) handleDashboardKey(key string) (tea.Model, tea.Cmd) {
@@ -136,8 +137,8 @@ func (m model) handleCreateKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		options := core.CreateOptions{Name: m.inputValue(fieldName), Repo: m.inputValue(fieldRepo), Source: m.inputValue(fieldSource), Branch: m.inputValue(fieldBranch), Path: m.inputValue(fieldPath)}
-		progressChan := m.startOperation("Creating worktree...", 5)
-		return m, tea.Batch(waitProgress(progressChan), operationCmd("created", progressChan, func(progress core.ProgressFunc) error {
+		progressChan, spinnerCmd := m.startOperation("Creating worktree...", 5)
+		return m, tea.Batch(waitProgress(progressChan), spinnerCmd, operationCmd("created", progressChan, func(progress core.ProgressFunc) error {
 			_, err := m.manager.CreateWithProgress(m.ctx, options, progress)
 			return err
 		}))
@@ -161,8 +162,8 @@ func (m model) handleConfirmUpdateKey(key string) (tea.Model, tea.Cmd) {
 			m.screen = screenDashboard
 			break
 		}
-		progressChan := m.startOperation("Updating worktree...", 4)
-		return m, tea.Batch(waitProgress(progressChan), operationCmd("updated", progressChan, func(progress core.ProgressFunc) error {
+		progressChan, spinnerCmd := m.startOperation("Updating worktree...", 4)
+		return m, tea.Batch(waitProgress(progressChan), spinnerCmd, operationCmd("updated", progressChan, func(progress core.ProgressFunc) error {
 			_, err := m.manager.UpdateWithProgress(m.ctx, record.ID, progress)
 			return err
 		}))
@@ -180,8 +181,8 @@ func (m model) handleConfirmMergeBackKey(key string) (tea.Model, tea.Cmd) {
 			m.screen = screenDashboard
 			break
 		}
-		progressChan := m.startOperation("Merging back worktree...", 7)
-		return m, tea.Batch(waitProgress(progressChan), operationCmd("merged back", progressChan, func(progress core.ProgressFunc) error {
+		progressChan, spinnerCmd := m.startOperation("Merging back worktree...", 7)
+		return m, tea.Batch(waitProgress(progressChan), spinnerCmd, operationCmd("merged back", progressChan, func(progress core.ProgressFunc) error {
 			_, err := m.manager.MergeBackWithProgress(m.ctx, record.ID, progress)
 			return err
 		}))
@@ -194,18 +195,32 @@ func (m model) handleConfirmRemoveKey(key string) (tea.Model, tea.Cmd) {
 	case "esc":
 		m.screen = screenDashboard
 	case "y":
-		record, ok := m.current()
-		if !ok {
-			m.screen = screenDashboard
-			break
-		}
-		progressChan := m.startOperation("Removing worktree...", 5)
-		return m, tea.Batch(waitProgress(progressChan), operationCmd("removed", progressChan, func(progress core.ProgressFunc) error {
-			_, err := m.manager.RemoveWithProgress(m.ctx, core.RemoveOptions{Selector: record.ID}, progress)
-			return err
-		}))
+		return m.removeCurrent(false)
 	}
 	return m, nil
+}
+
+func (m model) handleConfirmForceRemoveKey(key string) (tea.Model, tea.Cmd) {
+	switch key {
+	case "esc":
+		m.screen = screenDashboard
+	case "y":
+		return m.removeCurrent(true)
+	}
+	return m, nil
+}
+
+func (m model) removeCurrent(force bool) (tea.Model, tea.Cmd) {
+	record, ok := m.current()
+	if !ok {
+		m.screen = screenDashboard
+		return m, nil
+	}
+	progressChan, spinnerCmd := m.startOperation("Removing worktree...", 5)
+	return m, tea.Batch(waitProgress(progressChan), spinnerCmd, operationCmd("removed", progressChan, func(progress core.ProgressFunc) error {
+		_, err := m.manager.RemoveWithProgress(m.ctx, core.RemoveOptions{Selector: record.ID, Force: force}, progress)
+		return err
+	}))
 }
 
 func (m model) handleSettingsKey(key string) (tea.Model, tea.Cmd) {
@@ -234,11 +249,18 @@ func (m *model) handleOperationResult(err error, action string) {
 	if err != nil {
 		m.message = ""
 		m.conflict = nil
-		if coreErr, ok := err.(core.Error); ok && coreErr.Data != nil {
-			if data, ok := coreErr.Data.(map[string]any); ok {
-				m.conflict = data
-				m.screen = screenConflict
+		if coreErr, ok := err.(core.Error); ok {
+			if action == "removed" && coreErr.Code == jsonapi.ErrWorktreeDirty {
+				m.err = err.Error()
+				m.screen = screenConfirmForceRemove
 				return
+			}
+			if coreErr.Data != nil {
+				if data, ok := coreErr.Data.(map[string]any); ok {
+					m.conflict = data
+					m.screen = screenConflict
+					return
+				}
 			}
 		}
 		m.err = err.Error()

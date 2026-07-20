@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Allow removing manager records for stale Git worktrees whose directories were deleted outside `gwt`.
+- Add a TUI force-delete confirmation for dirty worktrees so users can explicitly discard uncommitted changes.
+
 ## v0.1.0 - 2026-07-10
 
 Initial release of `gwt`, a Git worktree lifecycle manager with both TUI and CLI workflows.

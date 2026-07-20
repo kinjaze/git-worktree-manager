@@ -41,17 +41,31 @@ func (m Manager) RemoveWithProgress(ctx context.Context, options RemoveOptions, 
 		return RemoveResult{ID: record.ID, Path: record.Path, Branch: record.WorktreeBranch}, nil
 	}
 	progress(2, 5, "Check worktree status")
-	if _, err := os.Stat(record.Path); err == nil {
-		dirty, err := m.git.IsDirty(ctx, record.Path)
-		if err != nil {
+	worktree, found, err := m.git.FindWorktree(ctx, record.SourceRepoPath, record.Path)
+	if err != nil {
+		return RemoveResult{}, err
+	}
+	if !found || worktree.Prunable {
+		if err := m.git.WorktreePrune(ctx, record.SourceRepoPath); err != nil {
 			return RemoveResult{}, err
 		}
-		if dirty && !options.Force {
-			return RemoveResult{}, NewError(jsonapi.ErrWorktreeDirty, "worktree has uncommitted changes: %s", record.Path)
-		}
-		progress(3, 5, "Remove git worktree")
-		if err := m.git.WorktreeRemove(ctx, record.SourceRepoPath, record.Path, options.Force); err != nil {
-			return RemoveResult{}, err
+	} else if found {
+		if _, err := os.Stat(record.Path); err != nil {
+			if err := m.git.WorktreePrune(ctx, record.SourceRepoPath); err != nil {
+				return RemoveResult{}, err
+			}
+		} else {
+			dirty, err := m.git.IsDirty(ctx, record.Path)
+			if err != nil {
+				return RemoveResult{}, err
+			}
+			if dirty && !options.Force {
+				return RemoveResult{}, NewError(jsonapi.ErrWorktreeDirty, "worktree has uncommitted changes: %s", record.Path)
+			}
+			progress(3, 5, "Remove git worktree")
+			if err := m.git.WorktreeRemove(ctx, record.SourceRepoPath, record.Path, options.Force); err != nil {
+				return RemoveResult{}, err
+			}
 		}
 	}
 	progress(4, 5, "Delete worktree branch")

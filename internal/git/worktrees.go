@@ -3,10 +3,11 @@ package git
 import "strings"
 
 type Worktree struct {
-	Path   string
-	Head   string
-	Branch string
-	Bare   bool
+	Path     string
+	Head     string
+	Branch   string
+	Bare     bool
+	Prunable bool
 }
 
 func ParseWorktreeList(output string) []Worktree {
@@ -38,6 +39,8 @@ func ParseWorktreeList(output string) []Worktree {
 			current.Branch = strings.TrimPrefix(line, "branch refs/heads/")
 		case line == "bare":
 			current.Bare = true
+		case strings.HasPrefix(line, "prunable"):
+			current.Prunable = true
 		}
 	}
 	if current != nil {

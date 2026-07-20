@@ -2,6 +2,7 @@ package git
 
 import (
 	"context"
+	"path/filepath"
 	"strings"
 )
 
@@ -32,6 +33,11 @@ func (r Runner) WorktreeRemove(ctx context.Context, repo string, path string, fo
 	}
 	args = append(args, path)
 	_, err := r.Run(ctx, repo, args...)
+	return err
+}
+
+func (r Runner) WorktreePrune(ctx context.Context, repo string) error {
+	_, err := r.Run(ctx, repo, "worktree", "prune", "--expire", "now")
 	return err
 }
 
@@ -75,6 +81,39 @@ func (r Runner) Worktrees(ctx context.Context, repo string) ([]Worktree, error) 
 		return nil, err
 	}
 	return ParseWorktreeList(result.Stdout), nil
+}
+
+func (r Runner) FindWorktree(ctx context.Context, repo string, path string) (Worktree, bool, error) {
+	worktrees, err := r.Worktrees(ctx, repo)
+	if err != nil {
+		return Worktree{}, false, err
+	}
+	path, err = canonicalPath(path)
+	if err != nil {
+		return Worktree{}, false, err
+	}
+	for _, worktree := range worktrees {
+		worktreePath, err := canonicalPath(worktree.Path)
+		if err != nil {
+			return Worktree{}, false, err
+		}
+		if worktreePath == path {
+			return worktree, true, nil
+		}
+	}
+	return Worktree{}, false, nil
+}
+
+func canonicalPath(path string) (string, error) {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	resolved, err := filepath.EvalSymlinks(path)
+	if err == nil {
+		return resolved, nil
+	}
+	return path, nil
 }
 
 func (r Runner) IsDirty(ctx context.Context, dir string) (bool, error) {

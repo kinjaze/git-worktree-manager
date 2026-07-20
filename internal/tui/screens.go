@@ -22,6 +22,7 @@ const (
 	screenConfirmUpdate
 	screenConfirmMergeBack
 	screenConfirmRemove
+	screenConfirmForceRemove
 	screenSettings
 	screenConflict
 	screenLoading
@@ -88,7 +89,7 @@ func newCreateInputs(initialRepo string) []textinput.Model {
 }
 
 func (m model) Init() tea.Cmd {
-	return tea.Batch(textinput.Blink, m.spinner.Tick)
+	return textinput.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -96,6 +97,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		return m.handleKey(msg)
 	case spinner.TickMsg:
+		if m.screen != screenLoading {
+			return m, nil
+		}
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
@@ -128,6 +132,8 @@ func (m model) View() string {
 		return m.viewConfirmMergeBack()
 	case screenConfirmRemove:
 		return m.viewConfirmRemove()
+	case screenConfirmForceRemove:
+		return m.viewConfirmForceRemove()
 	case screenSettings:
 		return m.viewSettings()
 	case screenConflict:
@@ -157,6 +163,8 @@ func (m model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleConfirmMergeBackKey(key)
 	case screenConfirmRemove:
 		return m.handleConfirmRemoveKey(key)
+	case screenConfirmForceRemove:
+		return m.handleConfirmForceRemoveKey(key)
 	case screenSettings:
 		return m.handleSettingsKey(key)
 	case screenConflict:
@@ -316,6 +324,15 @@ func (m model) viewConfirmMergeBack() string {
 func (m model) viewConfirmRemove() string {
 	record, _ := m.current()
 	return fmt.Sprintf("%s\n\nWorktree: %s\nPath: %s\nStatus: %s\n\ny delete  esc cancel", titleStyle.Render("Delete worktree"), record.Name, record.Path, record.Status)
+}
+
+func (m model) viewConfirmForceRemove() string {
+	record, _ := m.current()
+	message := m.err
+	if message == "" {
+		message = "worktree has uncommitted changes"
+	}
+	return fmt.Sprintf("%s\n\n%s\n\nWorktree: %s\nPath: %s\nStatus: %s\n\nThis will discard uncommitted changes in the worktree.\n\ny force delete  esc cancel", titleStyle.Render("Force delete worktree"), errorStyle.Render(message), record.Name, record.Path, record.Status)
 }
 
 func (m model) viewSettings() string {
