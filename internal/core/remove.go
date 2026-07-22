@@ -29,7 +29,7 @@ func (m Manager) RemoveWithProgress(ctx context.Context, options RemoveOptions, 
 		progress = noopProgress
 	}
 	progress(1, 5, "Resolve worktree")
-	record, err := m.resolveRecord(options.Selector)
+	record, err := m.resolveRecord(ctx, options.Selector)
 	if err != nil {
 		return RemoveResult{}, err
 	}

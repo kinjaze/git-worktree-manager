@@ -19,7 +19,7 @@ func (m Manager) UpdateWithProgress(ctx context.Context, selector string, progre
 		progress = noopProgress
 	}
 	progress(1, 4, "Resolve worktree")
-	record, err := m.resolveRecord(selector)
+	record, err := m.resolveRecord(ctx, selector)
 	if err != nil {
 		return UpdateResult{}, err
 	}

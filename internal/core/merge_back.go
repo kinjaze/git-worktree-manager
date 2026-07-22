@@ -21,7 +21,7 @@ func (m Manager) MergeBackWithProgress(ctx context.Context, selector string, pro
 		progress = noopProgress
 	}
 	progress(1, 7, "Resolve worktree")
-	record, err := m.resolveRecord(selector)
+	record, err := m.resolveRecord(ctx, selector)
 	if err != nil {
 		return MergeBackResult{}, err
 	}

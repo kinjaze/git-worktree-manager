@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.2 - 2026-07-22
+
+### Fixed
+
+- Repair and refresh managed records when a worktree directory is moved outside `gwt`.
+- Recover update/remove operations when both the source repository and worktree are moved under the same parent directory.
+
 ## v0.1.1 - 2026-07-20
 
 ### Fixed

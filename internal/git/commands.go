@@ -41,6 +41,11 @@ func (r Runner) WorktreePrune(ctx context.Context, repo string) error {
 	return err
 }
 
+func (r Runner) WorktreeRepair(ctx context.Context, repo string, path string) error {
+	_, err := r.Run(ctx, repo, "worktree", "repair", path)
+	return err
+}
+
 func (r Runner) Merge(ctx context.Context, dir string, ref string, noFF bool) error {
 	args := []string{"merge"}
 	if noFF {
@@ -126,6 +131,22 @@ func (r Runner) IsDirty(ctx context.Context, dir string) (bool, error) {
 
 func (r Runner) Head(ctx context.Context, dir string) (string, error) {
 	result, err := r.Run(ctx, dir, "rev-parse", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(result.Stdout), nil
+}
+
+func (r Runner) CurrentBranch(ctx context.Context, dir string) (string, error) {
+	result, err := r.Run(ctx, dir, "branch", "--show-current")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(result.Stdout), nil
+}
+
+func (r Runner) CommonDir(ctx context.Context, dir string) (string, error) {
+	result, err := r.Run(ctx, dir, "rev-parse", "--path-format=absolute", "--git-common-dir")
 	if err != nil {
 		return "", err
 	}
