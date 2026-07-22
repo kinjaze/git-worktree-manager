@@ -1,4 +1,6 @@
 /gwt
 /dist/
+/.release/
+/CLAUDE.md
 *.test
 .DS_Store
